@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, View, Button, TextInput, ImageBackground, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, ImageBackground, TouchableOpacity, Platform, Alert } from 'react-native';
+import KeyboardSpacer from 'react-native-keyboard-spacer';
 
 export default class Start extends React.Component {
 
@@ -63,6 +64,7 @@ export default class Start extends React.Component {
               <Text style={styles.chattingText}>Start chatting</Text>
               </TouchableOpacity>
             </View>
+            {Platform.OS === 'android' ? <KeyboardSpacer /> : null }
         </ImageBackground>
       </View>
     )
