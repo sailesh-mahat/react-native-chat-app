@@ -52,12 +52,15 @@ export default class Chat extends Component {
     };
   };
 
-  get user() {
-    return {
-      name: this.props.navigation.state.params.userName,
-      _id: this.state.uid,
-      id: this.state.uid,
-    }
+  //set default values user's name and avatar
+  setUser = (_id, name = 'Guest', avatar = 'https://placeimg.com/140/140/any') => {
+    this.setState({
+      user: {
+        _id: _id,
+        name: name,
+        avatar: avatar,
+      }
+    })
   }
 
   onCollectionUpdate = (querySnapshot) => {
@@ -108,7 +111,7 @@ export default class Chat extends Component {
   }
 
   // async functions
-  async getMessages() {
+  getMessages = async () => {
     let messages = '';
     try {
       messages = await AsyncStorage.getItem('messages') || [];
@@ -125,7 +128,7 @@ export default class Chat extends Component {
       // listen for collection changes for current user
       //this.unsubscribeMessageUser = this.referenceChatUser.onSnapshot(this.onCollectionUpdate);
 
-  async saveMessages() {
+  saveMessages = async () => {
     try {
       await AsyncStorage.setItem('messages', JSON.stringify(this.state.messages));
     } catch (error) {
@@ -133,7 +136,7 @@ export default class Chat extends Component {
     }
   }
 
-  async deleteMessages() {
+  deleteMessages = async () => {
     try {
       await AsyncStorage.removeItem('messages');
     } catch (error) {
@@ -156,15 +159,29 @@ export default class Chat extends Component {
               await firebase.auth().signInAnonymously();
             }
             //update with current user data
+            if (!this.props.navigation.state.params.name) {
+            this.setUser(user.uid);
+            this.setState({
+              uid: user.uid,
+              loggedInText: "Welcome!"
+            });
+          } else {
+            this.setUser(user.uid, this.props.navigation.state.params.name)
+            this.setState({
+              uid: user.uid,
+              loggedInText: "Welcome!"
+            });
+          }
+          /*
             this.setState({
               uid: user.uid,
               user: {
                 _id: user.uid,
                 name: this.props.navigation.state.params.userName,
-                avatar: '',
+                avatar: 'https://placeimg.com/140/140/any',
               },
               loggedInText: 'Welcome!'
-            });
+            });*/
 
             // create a reference to the active user's documents (messages)
             //this.referenceChatUser = firebase.firestore().collection('messages').where("uid", "==", this.state.uid);
@@ -270,7 +287,7 @@ export default class Chat extends Component {
             renderInputToolbar={this.renderInputToolbar.bind(this)}
             renderBubble={this.renderBubble.bind(this)}
             renderActions={this.renderCustomActions.bind(this)}
-            renderCustomView={this.renderCustomView}
+            renderCustomView={this.renderCustomView.bind(this)}
             messages={this.state.messages}
             //inverted={false}
             onSend={messages => this.onSend(messages)}
